@@ -14,6 +14,7 @@ type (
 	}
 	Room struct { // Vertex
 		Name        string
+		Typ         string
 		Coordinates [2]int
 		Adjacent    []*Room
 	}
@@ -79,7 +80,7 @@ func main() {
 	for i := 0; i <= 5; i++ {
 		colony.AddRoom(strconv.Itoa(i), [2]int{i, i + 1})
 	}
-	colony.AddTunnels("8", "9")
+	colony.AddTunnels("1", "2")
 
 	colony.Print()
 }
