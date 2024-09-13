@@ -20,10 +20,34 @@ type (
 )
 
 func (colony *Colony) AddRoom(name string, cord [2]int) {
-	colony.Rooms = append(colony.Rooms, &Room{Name: name, Coordinates: cord})
+	if !colony.Contains(name, cord) {
+		colony.Rooms = append(colony.Rooms, &Room{Name: name, Coordinates: cord})
+	} else {
+		fmt.Fprintln(os.Stderr, "existing room")
+	}
 }
 
-func (colony *Colony) Contains(cord [2]int, name string) bool {
+func (colony *Colony) GetRoom(name string) *Room {
+	for _, room := range colony.Rooms {
+		if room.Name == name {
+			return room
+		}
+	}
+	return nil
+}
+
+func (colony *Colony) AddTunnels(from, to string) {
+	fromRoom := colony.GetRoom(from)
+	toRoom := colony.GetRoom(to)
+	if fromRoom == nil {
+		log.Fatalf("room %s doesent exist\n", from)
+	} else if toRoom == nil {
+		log.Fatalf("room %s doesent exist\n", to)
+	}
+	fromRoom.Adjacent = append(fromRoom.Adjacent, toRoom)
+}
+
+func (colony *Colony) Contains(name string, cord [2]int) bool {
 	for _, room := range colony.Rooms {
 		if (room.Coordinates[0] == cord[0]) && (room.Coordinates[1] == cord[1]) || room.Name == name {
 			return true
@@ -55,5 +79,7 @@ func main() {
 	for i := 0; i <= 5; i++ {
 		colony.AddRoom(strconv.Itoa(i), [2]int{i, i + 1})
 	}
+	colony.AddTunnels("8", "9")
+
 	colony.Print()
 }
