@@ -20,9 +20,9 @@ type (
 	}
 )
 
-func (colony *Colony) AddRoom(name string, cord [2]int) {
+func (colony *Colony) AddRoom(name string, typ string, cord [2]int) {
 	if !colony.Contains(name, cord) {
-		colony.Rooms = append(colony.Rooms, &Room{Name: name, Coordinates: cord})
+		colony.Rooms = append(colony.Rooms, &Room{Name: name, Typ: typ, Coordinates: cord})
 	} else {
 		fmt.Fprintln(os.Stderr, "existing room")
 	}
@@ -46,6 +46,7 @@ func (colony *Colony) AddTunnels(from, to string) {
 		log.Fatalf("room %s doesent exist\n", to)
 	}
 	fromRoom.Adjacent = append(fromRoom.Adjacent, toRoom)
+	toRoom.Adjacent = append(toRoom.Adjacent, fromRoom)
 }
 
 func (colony *Colony) Contains(name string, cord [2]int) bool {
@@ -59,7 +60,11 @@ func (colony *Colony) Contains(name string, cord [2]int) bool {
 
 func (colony *Colony) Print() {
 	for _, room := range colony.Rooms {
-		fmt.Printf("%s  :  (%d, %d)\n", room.Name, room.Coordinates[0], room.Coordinates[1])
+		fmt.Printf("%s[%s]  :  (%d, %d) ", room.Name, room.Typ, room.Coordinates[0], room.Coordinates[1])
+		for _, adj := range room.Adjacent {
+			fmt.Printf("__%s", adj.Name)
+		}
+		fmt.Println()
 	}
 }
 
@@ -77,10 +82,30 @@ func main() {
 		fmt.Println(ants)
 	}
 	var colony Colony
-	for i := 0; i <= 5; i++ {
-		colony.AddRoom(strconv.Itoa(i), [2]int{i, i + 1})
-	}
-	colony.AddTunnels("1", "2")
+	colony.AddRoom("1", "start", [2]int{23, 3})
+	colony.AddRoom("2", "room", [2]int{16, 7})
+	colony.AddRoom("3", "room", [2]int{16, 3})
+	colony.AddRoom("4", "room", [2]int{16, 5})
+	colony.AddRoom("5", "room", [2]int{9, 3})
+	colony.AddRoom("6", "room", [2]int{1, 5})
+	colony.AddRoom("7", "room", [2]int{4, 8})
+	colony.AddRoom("0", "end", [2]int{9, 5})
+
+	colony.AddTunnels("0", "4")
+	colony.AddTunnels("0", "6")
+	colony.AddTunnels("1", "3")
+	colony.AddTunnels("4", "3")
+	colony.AddTunnels("5", "2")
+	colony.AddTunnels("3", "5")
+	colony.AddTunnels("4", "2")
+	colony.AddTunnels("2", "1")
+	colony.AddTunnels("7", "6")
+	colony.AddTunnels("7", "2")
+	colony.AddTunnels("7", "4")
+	colony.AddTunnels("6", "5")
 
 	colony.Print()
+
+
+	
 }
