@@ -6,7 +6,25 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode"
 )
+
+func IsValidName(name string) bool {
+	if name != "" {
+		if name[0] == '#' || name[0] == 'L' {
+			return false
+		} else {
+			for _, letter := range name {
+				if unicode.IsSpace(letter) {
+					return false
+				}
+			}
+		}
+		return true
+	} else {
+		return false
+	}
+}
 
 func ParseFile(colony *Colony, fileName string) error {
 	content, err := os.ReadFile(fileName)
