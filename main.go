@@ -4,25 +4,27 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
-	"strings"
+	"sort"
+	"unicode"
 )
 
 type (
 	Colony struct { // Graph
 		Rooms []*Room
+		Start string
+		End   string
+		Ants  int
 	}
 	Room struct { // Vertex
 		Name        string
-		Typ         string
 		Coordinates [2]int
 		Adjacent    []*Room
 	}
 )
 
-func (colony *Colony) AddRoom(name string, typ string, cord [2]int) {
+func (colony *Colony) AddRoom(name string, cord [2]int) {
 	if !colony.Contains(name, cord) {
-		colony.Rooms = append(colony.Rooms, &Room{Name: name, Typ: typ, Coordinates: cord})
+		colony.Rooms = append(colony.Rooms, &Room{Name: name, Coordinates: cord})
 	} else {
 		fmt.Fprintln(os.Stderr, "existing room")
 	}
@@ -60,7 +62,7 @@ func (colony *Colony) Contains(name string, cord [2]int) bool {
 
 func (colony *Colony) Print() {
 	for _, room := range colony.Rooms {
-		fmt.Printf("%s[%s]  :  (%d, %d) ", room.Name, room.Typ, room.Coordinates[0], room.Coordinates[1])
+		fmt.Printf("%s : (%d, %d) ", room.Name, room.Coordinates[0], room.Coordinates[1])
 		for _, adj := range room.Adjacent {
 			fmt.Printf("__%s", adj.Name)
 		}
@@ -68,44 +70,122 @@ func (colony *Colony) Print() {
 	}
 }
 
+func (colony *Colony) FindPaths() {
+	start := colony.GetRoom(colony.Start)
+	end := colony.GetRoom(colony.End)
+	if start == nil || end == nil {
+		log.Fatalln("Start or end room not found")
+	}
+
+	paths := [][]string{}
+	stack := [][]*Room{{start}}
+
+	for len(stack) > 0 {
+		path := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		current := path[len(path)-1]
+
+		if current == end {
+			paths = append(paths, []string{})
+			for _, room := range path {
+				paths[len(paths)-1] = append(paths[len(paths)-1], room.Name)
+			}
+			continue
+		}
+		for _, adj := range current.Adjacent {
+			if !containsRoom(path, adj) {
+				newPath := append([]*Room{}, path...)
+				newPath = append(newPath, adj)
+				stack = append(stack, newPath)
+			}
+		}
+	}
+	//Sort paths
+
+	sort.Slice(paths, func(i, j int) bool {
+		return len(paths[i]) < len(paths[j])
+	})
+	// Print all paths found
+	fmt.Println("All paths from start to end:")
+	for _, path := range paths {
+		for _, room := range path {
+			fmt.Printf("%s ", room)
+		}
+		fmt.Println()
+	}
+	onlyUnique(paths)
+}
+
+// contains room string
+
+func containsRoomString(paths *[][]string, toFindRoom string, current int) bool {
+	for i, path := range *paths {
+		if i != current {
+			for _, room := range path {
+				if room == toFindRoom {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+// function to take only unique paths
+
+func onlyUnique(paths [][]string) {
+	len := len(paths)
+	count := make([]int, len)
+	for i, path := range paths {
+		for _, room := range path {
+			if containsRoomString(&paths, room, i) {
+				count[i]++
+			}
+		}
+	}
+	fmt.Println(paths)
+	fmt.Println(count)
+}
+
+// check if a room is already in the current path
+func containsRoom(path []*Room, room *Room) bool {
+	for _, r := range path {
+		if r == room {
+			return true
+		}
+	}
+	return false
+}
+
+func IsValidName(name string) bool {
+	if name != "" {
+		if name[0] == '#' || name[0] == 'L' {
+			return false
+		} else {
+			for _, letter := range name {
+				if unicode.IsSpace(letter) {
+					return false
+				}
+			}
+		}
+		return true
+	} else {
+		return false
+	}
+}
+
 func main() {
-	content, err := os.ReadFile("examples/example00.txt")
+	args := os.Args[1:]
+	if len(args) != 1 {
+		log.Fatalln("Invalid arguments\nUsage : go run . <filename>")
+	}
+	var colony Colony
+
+	err := ParseFile(&colony, args[0])
 	if err != nil {
 		log.Fatalln(err)
 	}
-	spliced := strings.Split(string(content), "\n")
-	if len(spliced) > 1 {
-		ants, err := strconv.Atoi(spliced[0])
-		if err != nil {
-			log.Fatalln(err)
-		}
-		fmt.Println(ants)
-	}
-	var colony Colony
-	colony.AddRoom("1", "start", [2]int{23, 3})
-	colony.AddRoom("2", "room", [2]int{16, 7})
-	colony.AddRoom("3", "room", [2]int{16, 3})
-	colony.AddRoom("4", "room", [2]int{16, 5})
-	colony.AddRoom("5", "room", [2]int{9, 3})
-	colony.AddRoom("6", "room", [2]int{1, 5})
-	colony.AddRoom("7", "room", [2]int{4, 8})
-	colony.AddRoom("0", "end", [2]int{9, 5})
-
-	colony.AddTunnels("0", "4")
-	colony.AddTunnels("0", "6")
-	colony.AddTunnels("1", "3")
-	colony.AddTunnels("4", "3")
-	colony.AddTunnels("5", "2")
-	colony.AddTunnels("3", "5")
-	colony.AddTunnels("4", "2")
-	colony.AddTunnels("2", "1")
-	colony.AddTunnels("7", "6")
-	colony.AddTunnels("7", "2")
-	colony.AddTunnels("7", "4")
-	colony.AddTunnels("6", "5")
-
 	colony.Print()
+	colony.FindPaths()
 
-
-	
 }
