@@ -65,7 +65,7 @@ func ParseFile(colony *Colony, fileName string) error {
 			}
 			end = true
 
-		case strings.HasPrefix(line, "#") || line[0] == 'L':
+		case line[0] == '#' || line[0] == 'L':
 			continue
 
 		default:
