@@ -16,7 +16,6 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	colony.Print()
 	colony.FindPaths()
 
 }

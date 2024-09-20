@@ -19,6 +19,11 @@ type (
 		Coordinates [2]int
 		Adjacent    []*Room
 	}
+
+	ScoredPaths struct {
+		Path  []string
+		Score int
+	}
 )
 
 func (colony *Colony) AddRoom(name string, cord [2]int) {
@@ -104,46 +109,119 @@ func (colony *Colony) FindPaths() {
 	sort.Slice(paths, func(i, j int) bool {
 		return len(paths[i]) < len(paths[j])
 	})
+	finalPaths := onlyUnique(paths)
+
 	// Print all paths found
 	fmt.Println("All paths from start to end:")
-	for _, path := range paths {
-		for _, room := range path {
-			fmt.Printf("%s ", room)
+	for _, path := range finalPaths {
+		fmt.Printf("[%d] : ", path.Score)
+		for _, room := range path.Path {
+			fmt.Printf("%s --> ", room)
 		}
 		fmt.Println()
 	}
-	onlyUnique(paths)
 }
 
-// contains room string
+// func onlyUnique(paths [][]string) [][]string {
+// 	fmt.Println(paths)
+// 	roomCount := make(map[string]int)
+// 	for _, path := range paths {
+// 		for _, room := range path {
+// 			roomCount[room]++
+// 		}
+// 	}
+// 	fmt.Println(roomCount)
+// 	uniquePaths := [][]string{}
+// 	count := make([]int, len(paths))
+// 	for _, path := range paths {
+// 		isUnique := true
+// 		for i, room := range path {
+// 			if i != 0 && i != len(path)-1 && roomCount[room] > 1 {
+// 				count[i] += roomCount[room]
+// 				isUnique = false
+// 				break
+// 			}
+// 		}
+// 		if isUnique {
+// 			uniquePaths = append(uniquePaths, path)
+// 		}
+// 	}
+// 	fmt.Println(count)
+// 	return uniquePaths
+// }
 
-func containsRoomString(paths *[][]string, toFindRoom string, current int) bool {
-	for i, path := range *paths {
-		if i != current {
-			for _, room := range path {
-				if room == toFindRoom {
-					return true
+func onlyUnique(paths [][]string) []ScoredPaths {
+	count := countOccurrences(paths)
+	//sort
+	for k := 0; k < len(count); k++ {
+		for l := 0; l < len(count); l++ {
+			if count[k] > count[l] {
+				count[k], count[l] = count[l], count[k]
+				paths[k], paths[l] = paths[l], paths[k]
+
+			}
+		}
+	}
+
+	for key, path := range paths {
+		fmt.Printf("[%d]", count[key])
+		for _, room := range path {
+			fmt.Printf("%s --> ", room)
+		}
+		fmt.Println()
+	}
+	final := []ScoredPaths{}
+
+	for n, path := range paths {
+		ff := false
+		for m, room := range path {
+			if m != 0 && m != len(path)-1 {
+				if flag, index := containInOtherPath(room, final); flag {
+					ff = true
+					final[index] = ScoredPaths{Path: path, Score: count[n]}
+					break
 				}
 			}
 		}
+		if !ff {
+			final = append(final, ScoredPaths{Path: path, Score: count[n]})
+		}
 	}
-	return false
+
+	return final
 }
 
-// function to take only unique paths
+func countOccurrences(slices [][]string) []int {
+	result := make([]int, len(slices))
 
-func onlyUnique(paths [][]string) {
-	len := len(paths)
-	count := make([]int, len)
+	for i, slice := range slices {
+		count := 0
+		for k, otherSlice := range slices {
+			if i == k {
+				continue
+			}
+			for _, str := range slice {
+				for _, otherStr := range otherSlice {
+					if str == otherStr {
+						count++
+					}
+				}
+			}
+		}
+		result[i] = count
+	}
+	return result
+}
+
+func containInOtherPath(roomArg string, paths []ScoredPaths) (bool, int) {
 	for i, path := range paths {
-		for _, room := range path {
-			if containsRoomString(&paths, room, i) {
-				count[i]++
+		for j, room := range path.Path {
+			if room == roomArg && j != 0 && j != len(path.Path)-1 {
+				return true, i
 			}
 		}
 	}
-	fmt.Println(paths)
-	fmt.Println(count)
+	return false, 0
 }
 
 func containsRoom(path []*Room, room *Room) bool {
@@ -153,4 +231,8 @@ func containsRoom(path []*Room, room *Room) bool {
 		}
 	}
 	return false
+}
+
+func RunAnts() {
+
 }
