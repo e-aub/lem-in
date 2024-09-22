@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 )
@@ -16,6 +17,12 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	colony.FindPaths()
+	paths := colony.FindPaths()
+	fmt.Println(paths)
+	// fmt.Println(paths)
+	// RunAnts(colony.Ants, paths)
+	filtered := onlyUnique(paths)
 
+	// fmt.Println(filtered)
+	RunAnts(colony.Ants, filtered)
 }
