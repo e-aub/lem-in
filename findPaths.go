@@ -21,10 +21,11 @@ func (colony *Colony) FindPaths() [][]string {
 		current := path[len(path)-1]
 
 		if current == end {
-			paths = append(paths, []string{})
+			temp := []string{}
 			for _, room := range path {
-				paths[len(paths)-1] = append(paths[len(paths)-1], room.Name)
+				temp = append(temp, room.Name)
 			}
+			paths = append(paths, temp)
 			continue
 		}
 		for _, adj := range current.Adjacent {
