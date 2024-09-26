@@ -43,3 +43,12 @@ func (colony *Colony) FindPaths() [][]string {
 	})
 	return paths
 }
+
+func containsRoom(path []*Room, adj *Room) bool {
+	for _, room := range path {
+		if room == adj {
+			return true
+		}
+	}
+	return false
+}

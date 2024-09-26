@@ -2,98 +2,64 @@ package main
 
 import (
 	"fmt"
-	"strings"
 )
 
-func RunAnts(ants int, paths []ScoredPaths) {
-	var odd bool
-	var groups int
-
-	if ants > len(paths) {
-		groups = ants / len(paths)
-		if ants%len(paths) != 0 {
-			odd = true
-		}
-	} else {
-		groups = 1
-		paths = paths[:ants] // Only consider the number of paths equal to ants
+type (
+	Ant struct {
+		Name string
+		Path []string
+		Next int
 	}
+)
 
-	var walkPaths [][]RunRoom
-	var antsAtStart int
-
-	// Populate walkPaths with ants in the start room
-	for i, scoredPath := range paths {
-		temp := []RunRoom{}
-		for j, roomName := range scoredPath.Path {
-			if j == 0 {
-				// Place ants at the start room
-				var antsList []string
-				if odd && i == 0 {
-					groups++
-				}
-				for k := 1; k <= groups; k++ {
-					antsAtStart++
-					antsList = append(antsList, fmt.Sprintf("L%d", antsAtStart))
-				}
-				temp = append(temp, RunRoom{Name: roomName, Ants: antsList})
-				if odd && i == 0 {
-					groups--
-				}
-			} else {
-				temp = append(temp, RunRoom{Name: roomName})
+func RunAnts(colony Colony, pathsSets [][][]string) {
+	var paths [][]string
+	for _, set := range pathsSets {
+		if colony.Ants > len(set) {
+			if len(set) > len(paths) {
+				paths = set
 			}
 		}
-		walkPaths = append(walkPaths, temp)
 	}
 
-	// Track how many ants have reached the end room
-	antsInEnd := 0
+	ants := make([]Ant, 0, colony.Ants)
+	idx := 0
+	for n := 1; n <= colony.Ants; n++ {
+		if idx < len(paths) {
+			ants = append(ants, Ant{Name: fmt.Sprintf("L%d", n), Next: 1, Path: paths[idx]})
+		} else {
+			idx = 0
+			ants = append(ants, Ant{Name: fmt.Sprintf("L%d", n), Next: 1, Path: paths[idx]})
+		}
+		idx++
+	}
 
-	for antsInEnd < ants { // Run until all ants reach the end
-		moves := []string{} // Track all moves in this iteration
-
-		for m := 0; m < len(walkPaths); m++ {
-			path := walkPaths[m]
-
-			// Move ants along the path in reverse order
-			for n := len(path) - 2; n >= 0; n-- {
-				if len(path[n].Ants) != 0 {
-					move := MoveToNextRoom(path, n)
-					if move != "" {
-						moves = append(moves, move) // Track the move to print it later
-
-						// If an ant reaches the end room, increment antsInEnd
-						if n+1 == len(path)-1 {
-							antsInEnd++
-						}
-					}
-				}
+	rooms := make(map[string]bool)
+	for len(ants) > 0 {
+		for i := 0; i < len(ants); i++ {
+			ant := ants[i]
+			if ant.Path[ant.Next] == colony.End {
+				ants = append(ants[:i], ants[i+1:]...)
+				i--
 			}
+			if occupied := rooms[ant.Path[ant.Next]]; !occupied {
+				fmt.Printf("%s-%s ", ant.Name, ant.Path[ant.Next])
+				if ant.Next < len(ant.Path)-1 {
+					rooms[ant.Path[ant.Next]] = true
+				}
+
+				if ant.Next > 0 {
+					rooms[ant.Path[ant.Next-1]] = false
+				}
+
+				if ant.Next < len(ant.Path)-1 {
+					ants[i].Next++
+				}
+
+			}
+
 		}
 
-		// Print all moves for this iteration
-		if len(moves) > 0 {
-			fmt.Println(strings.Join(moves, " "))
-		}
+		fmt.Println()
 	}
-}
-
-// MoveToNextRoom moves an ant from the current room to the next if the next room is empty and returns the move string
-func MoveToNextRoom(path []RunRoom, currentRoom int) string {
-	if len(path[currentRoom].Ants) > 0 {
-		// Check if the next room is empty or is the end room
-		if len(path[currentRoom+1].Ants) == 0 || currentRoom+1 == len(path)-1 {
-			// Move the first ant from the current room to the next
-			movedAnt := path[currentRoom].Ants[0]
-			path[currentRoom+1].Ants = append(path[currentRoom+1].Ants, movedAnt)
-
-			// Remove the moved ant from the current room
-			path[currentRoom].Ants = path[currentRoom].Ants[1:]
-
-			// Return the formatted move string
-			return fmt.Sprintf("%s-%s", movedAnt, path[currentRoom+1].Name)
-		}
-	}
-	return ""
 }

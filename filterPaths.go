@@ -1,84 +1,57 @@
 package main
 
-import (
-	"fmt"
-	"sort"
-)
-
-func onlyUnique(paths [][]string) []ScoredPaths {
-	count := countOccurrences(paths)
-	//sort
-	for k := 0; k < len(count); k++ {
-		for l := 0; l < len(count); l++ {
-			if count[k] > count[l] {
-				count[k], count[l] = count[l], count[k]
-				paths[k], paths[l] = paths[l], paths[k]
-
-			}
-		}
+func pathsInterfere(path1, path2 []string) bool {
+	rooms1 := make(map[string]bool)
+	for _, room := range path1[1 : len(path1)-1] {
+		rooms1[room] = true
 	}
-	for i, path := range paths {
-		fmt.Printf("[%d]%v\n", count[i], path)
-	}
-	final := []ScoredPaths{}
 
-	for n, path := range paths {
-		ff := false
-		for _, room := range path {
-			if flag, index := containInOtherPath(room, final); flag {
-				ff = true
-				final[index] = ScoredPaths{Path: path, Score: count[n]}
-				break
-			}
-		}
-		if !ff {
-			final = append(final, ScoredPaths{Path: path, Score: count[n]})
-		}
-	}
-	sort.Slice(final, func(i, j int) bool {
-		return len(final[i].Path)+final[i].Score > len(final[j].Path)+final[j].Score
-	})
-	return final
-}
-
-func countOccurrences(slices [][]string) []int {
-	result := make([]int, len(slices))
-
-	for i, slice := range slices {
-		count := 0
-		for _, otherSlice := range slices {
-			// if i == k {
-			// 	continue
-			// }
-			for _, str := range slice {
-				for _, otherStr := range otherSlice {
-					if str == otherStr {
-						count++
-					}
-				}
-			}
-		}
-		result[i] = count
-	}
-	return result
-}
-
-func containInOtherPath(roomArg string, paths []ScoredPaths) (bool, int) {
-	for i, path := range paths {
-		for j, room := range path.Path {
-			if room == roomArg && j != 0 && j != len(path.Path)-1 {
-				return true, i
-			}
-		}
-	}
-	return false, 0
-}
-
-func containsRoom(path []*Room, room *Room) bool {
-	for _, r := range path {
-		if r == room {
+	for _, room := range path2[1 : len(path2)-1] {
+		if rooms1[room] {
 			return true
 		}
 	}
+
 	return false
+}
+
+func FindMaxNonInterferingPaths(paths [][]string) [][][]string {
+	final := [][][]string{}
+	n := len(paths)
+	maxSet := [][]string{}
+
+	queue := [][][]string{{}}
+
+	for i := 0; i < n; i++ {
+		currentPath := paths[i]
+		newSubsets := [][][]string{}
+
+		for _, subset := range queue {
+			interferes := false
+
+			for _, chosenPath := range subset {
+				if pathsInterfere(currentPath, chosenPath) {
+					interferes = true
+					break
+				}
+			}
+
+			if !interferes {
+				newSubset := append([][]string{}, subset...)
+				newSubset = append(newSubset, currentPath)
+				newSubsets = append(newSubsets, newSubset)
+
+				if len(newSubset) > len(maxSet) {
+					maxSet = newSubset
+					final = append(final, newSubset)
+				}
+			}
+		}
+
+		queue = append(queue, newSubsets...)
+		// fmt.Println("\n\n\n", newSubsets, "\n\n\n")
+
+	}
+
+	return final
 }
