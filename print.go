@@ -36,7 +36,9 @@ func RunAnts(colony Colony, pathsSets [][][]string) {
 
 	rooms := make(map[string]bool)
 	for len(ants) > 0 {
-		for i := 0; i < len(ants); i++ {
+		var returnTo int
+		for i := returnTo; i < len(ants); i++ {
+			// returnTo = 0
 			ant := ants[i]
 			if ant.Path[ant.Next] == colony.End {
 				ants = append(ants[:i], ants[i+1:]...)
@@ -55,7 +57,10 @@ func RunAnts(colony Colony, pathsSets [][][]string) {
 				if ant.Next < len(ant.Path)-1 {
 					ants[i].Next++
 				}
-
+				if ant.Next == 1 && len(ant.Path) > 3 {
+					returnTo = i
+					break
+				}
 			}
 
 		}
