@@ -18,14 +18,16 @@ type (
 		Coordinates [2]int
 		Adjacent    []*Room
 	}
-
-	ScoredPaths struct {
-		Path  []string
-		Score int
-	}
-	RunRoom struct {
+	Ant struct {
 		Name string
-		Ants []string
+		Path []string
+		Next int
+	}
+
+	Path struct {
+		Path   []string
+		AntsIn int
+		Index  int
 	}
 )
 

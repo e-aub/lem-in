@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"time"
 )
 
 func main() {
+	start := time.Now()
 	args := os.Args[1:]
 	if len(args) != 1 {
 		log.Fatalln("Invalid arguments\nUsage : go run . <filename>")
@@ -19,6 +22,9 @@ func main() {
 		log.Fatalln(err)
 	}
 	paths := colony.FindPaths()
+	if len(paths) < 1 {
+		log.Fatalln("There is no paths from start to end")
+	}
 	// fmt.Println(paths)
 	// fmt.Println(paths)
 	// RunAnts(colony.Ants, paths)
@@ -27,6 +33,7 @@ func main() {
 	// for _, set := range subSets {
 	// 	fmt.Println(set)
 	// }
-	// fmt.Println(colony.End)
+	fmt.Println(subSets)
 	RunAnts(colony, subSets)
+	fmt.Println(time.Since(start))
 }
