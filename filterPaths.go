@@ -1,57 +1,54 @@
 package main
 
-func pathsInterfere(path1, path2 []string) bool {
-	rooms1 := make(map[string]bool)
-	for _, room := range path1[1 : len(path1)-1] {
-		rooms1[room] = true
+func FilterPaths(paths []Path, totalAnts int) []Path {
+	// fmt.Println(paths)
+
+	bestCombo := []Path{}
+	remainingAnts := totalAnts
+	for i := 0; i < len(paths); i++ {
+		selectedPaths := []Path{}
+		remainingAnts = totalAnts
+		path1 := paths[i]
+		selectedPaths = append(selectedPaths, path1)
+		remainingAnts -= getCapacity(path1)
+		if remainingAnts > 0 {
+			for j := 0; j < len(paths); j++ {
+				if j != i {
+					path2 := paths[j]
+					if !PathsInterfear(selectedPaths, path2) {
+						selectedPaths = append(selectedPaths, path2)
+						remainingAnts -= getCapacity(path2)
+						if remainingAnts <= 0 {
+							return selectedPaths
+						}
+					}
+				}
+			}
+		}
+		if len(selectedPaths) >= len(bestCombo) {
+			bestCombo = selectedPaths
+
+		}
+	}
+	return bestCombo
+}
+
+func PathsInterfear(paths []Path, path2 Path) bool {
+	occupiedRooms := make(map[string]bool)
+	for _, path1 := range paths {
+		for _, room1 := range path1.Path[1 : len(path1.Path)-1] {
+			occupiedRooms[room1] = true
+		}
 	}
 
-	for _, room := range path2[1 : len(path2)-1] {
-		if rooms1[room] {
+	for _, room2 := range path2.Path[1 : len(path2.Path)-1] {
+		if occupiedRooms[room2] {
 			return true
 		}
 	}
-
 	return false
 }
 
-func FindMaxNonInterferingPaths(paths [][]string) [][][]string {
-	final := [][][]string{}
-	n := len(paths)
-	maxSet := [][]string{}
-
-	queue := [][][]string{{}}
-
-	for i := 0; i < n; i++ {
-		currentPath := paths[i]
-		newSubsets := [][][]string{}
-
-		for _, subset := range queue {
-			interferes := false
-
-			for _, chosenPath := range subset {
-				if pathsInterfere(currentPath, chosenPath) {
-					interferes = true
-					break
-				}
-			}
-
-			if !interferes {
-				newSubset := append([][]string{}, subset...)
-				newSubset = append(newSubset, currentPath)
-				newSubsets = append(newSubsets, newSubset)
-
-				if len(newSubset) > len(maxSet) {
-					maxSet = newSubset
-					final = append(final, newSubset)
-				}
-			}
-		}
-
-		queue = append(queue, newSubsets...)
-		// fmt.Println("\n\n\n", newSubsets, "\n\n\n")
-
-	}
-
-	return final
+func getCapacity(path Path) int {
+	return len(path.Path) - 2
 }

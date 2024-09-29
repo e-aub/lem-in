@@ -1,14 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
-	"time"
 )
 
 func main() {
-	start := time.Now()
+	// start := time.Now()
 	args := os.Args[1:]
 	if len(args) != 1 {
 		log.Fatalln("Invalid arguments\nUsage : go run . <filename>")
@@ -25,15 +23,14 @@ func main() {
 	if len(paths) < 1 {
 		log.Fatalln("There is no paths from start to end")
 	}
-	// fmt.Println(paths)
-	// fmt.Println(paths)
-	// RunAnts(colony.Ants, paths)
-	// filtered := onlyUnique(paths)
-	subSets := FindMaxNonInterferingPaths(paths)
-	// for _, set := range subSets {
-	// 	fmt.Println(set)
-	// }
-	fmt.Println(subSets)
+
+	tyPaths := []Path{}
+	for _, path := range paths {
+		tyPaths = append(tyPaths, Path{Path: path})
+	}
+	// fmt.Println(tyPaths, "\n\n")
+	subSets := FilterPaths(tyPaths, colony.Ants)
 	RunAnts(colony, subSets)
-	fmt.Println(time.Since(start))
+	// RunAnts(colony, subSets)
+	// fmt.Println(time.Since(start))
 }

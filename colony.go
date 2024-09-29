@@ -19,7 +19,7 @@ type (
 		Adjacent    []*Room
 	}
 	Ant struct {
-		Name string
+		Id   int
 		Path []string
 		Next int
 	}
@@ -28,6 +28,7 @@ type (
 		Path   []string
 		AntsIn int
 		Index  int
+		Banned bool
 	}
 )
 

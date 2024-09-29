@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"sort"
 )
 
 func (colony *Colony) FindPaths() [][]string {
@@ -36,6 +37,10 @@ func (colony *Colony) FindPaths() [][]string {
 		}
 	}
 	//Sort paths
+
+	sort.Slice(paths, func(i, j int) bool {
+		return len(paths[i]) <= len(paths[j])
+	})
 
 	return paths
 }

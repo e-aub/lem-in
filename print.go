@@ -5,66 +5,64 @@ import (
 	"sort"
 )
 
-func RunAnts(colony Colony, pathsSets [][][]string) {
-	var TemPaths [][]string
-	for _, set := range pathsSets {
-		if colony.Ants > len(set) {
-			if len(set) > len(TemPaths) {
-				TemPaths = set
-			}
-		} else {
-			TemPaths = pathsSets[0]
-		}
+type Tunnel struct {
+	Romms [2]string
+}
 
-	}
-
-	var paths []Path
-	for i, path := range TemPaths {
-		paths = append(paths, Path{Path: path, Index: i})
-	}
-	// fmt.Println(paths)
-
-	ants := make([]Ant, 0, colony.Ants)
+func RunAnts(colony Colony, paths []Path) {
+	ants := make([]Ant, colony.Ants)
 
 	for n := 1; n <= colony.Ants; n++ {
 		sort.Slice(paths, func(i, j int) bool {
-			if len(paths[i].Path)+paths[i].AntsIn == len(paths[j].Path)+paths[j].AntsIn {
-				return paths[i].Index > paths[j].Index
-			}
-			return len(paths[i].Path)+paths[i].AntsIn < len(paths[j].Path)+paths[j].AntsIn
+			return (len(paths[i].Path)+paths[i].AntsIn <= len(paths[j].Path)+paths[j].AntsIn)
 		})
-
-		ants = append(ants, Ant{Name: fmt.Sprintf("L%d", n), Next: 1, Path: paths[0].Path})
 		paths[0].AntsIn++
-
 	}
-
-	rooms := make(map[string]string)
+	var n int
+	for i := 0; i < len(ants); i++ {
+		if n > len(paths)-1 {
+			n = 0
+		}
+		if paths[n].AntsIn > 0 {
+			ants[i] = Ant{Id: i + 1, Path: paths[n].Path, Next: 1}
+			paths[n].AntsIn--
+			n++
+		} else {
+			n++
+			i--
+		}
+	}
+	rooms := make(map[string]int)
+	var result string
 	for len(ants) > 0 {
+		usedTunnels := make(map[Tunnel]bool)
 		for i := 0; i < len(ants); i++ {
 			ant := ants[i]
-			if rooms[ant.Path[ant.Next]] == "" {
-				fmt.Printf("%s-%s ", ant.Name, ant.Path[ant.Next])
+			if !usedTunnels[Tunnel{Romms: [2]string{ant.Path[ant.Next-1], ant.Path[ant.Next]}}] {
+				if rooms[ant.Path[ant.Next]] == 0 {
+					result += fmt.Sprintf("L%d-%s ", ant.Id, ant.Path[ant.Next])
+					usedTunnels[Tunnel{Romms: [2]string{ant.Path[ant.Next-1], ant.Path[ant.Next]}}] = true
+					if ant.Next < len(ant.Path)-1 {
+						rooms[ant.Path[ant.Next]] = ant.Id
+					}
 
-				if ant.Next < len(ant.Path)-1 {
-					rooms[ant.Path[ant.Next]] = ant.Name
+					if ant.Next > 0 {
+						rooms[ant.Path[ant.Next-1]] = 0
+					}
+
+					if ant.Next < len(ant.Path)-1 {
+						ants[i].Next++
+					}
 				}
 
-				if ant.Next > 0 {
-					rooms[ant.Path[ant.Next-1]] = ""
-				}
-
-				if ant.Next < len(ant.Path)-1 {
-					ants[i].Next++
+				if ant.Path[ant.Next] == colony.End {
+					ants = append(ants[:i], ants[i+1:]...)
+					i--
 				}
 			}
 
-			if ant.Path[ant.Next] == colony.End {
-				ants = append(ants[:i], ants[i+1:]...)
-				i--
-			}
 		}
-
-		fmt.Print("\n")
+		result += "\n"
 	}
+	fmt.Print(result)
 }
