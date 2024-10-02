@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -9,6 +8,9 @@ import (
 	"unicode"
 )
 
+// IsValidName checks if the given name is valid for a room.
+// A valid name cannot be empty, cannot start with '#' or 'L',
+// and cannot contain whitespace.
 func IsValidName(name string) bool {
 	if name != "" {
 		if name[0] == '#' || name[0] == 'L' {
@@ -26,6 +28,9 @@ func IsValidName(name string) bool {
 	}
 }
 
+// ParseFile reads a file and populates the colony's properties based on its contents.
+// It expects the file to contain the number of ants, start and end definitions,
+// and room definitions or tunnels. Returns an error if the file format is invalid.
 func ParseFile(colony *Colony, fileName string) error {
 	content, err := os.ReadFile(fileName)
 	if err != nil {
@@ -34,7 +39,7 @@ func ParseFile(colony *Colony, fileName string) error {
 
 	lines := strings.Split(string(content), "\n")
 	if len(lines) < 6 {
-		return errors.New("insufficient data in file")
+		return fmt.Errorf("insufficient data in file")
 	}
 
 	ants, err := strconv.Atoi(lines[0])
@@ -44,9 +49,9 @@ func ParseFile(colony *Colony, fileName string) error {
 	colony.Ants = ants
 
 	var start, end bool
-	for _, line := range lines {
+	for _, line := range lines[1:] {
 		if len(line) < 3 {
-			continue
+			return fmt.Errorf("invalid data format : %s", line)
 		}
 
 		switch {
@@ -54,14 +59,14 @@ func ParseFile(colony *Colony, fileName string) error {
 			if colony.Start != "" {
 				return fmt.Errorf("start has already been defined as %s", colony.Start)
 			} else if end {
-				return errors.New("no room after 'end'")
+				return fmt.Errorf("no room after '##end'")
 			}
 			start = true
 		case line == "##end":
 			if colony.End != "" {
 				return fmt.Errorf("end has already been defined as %s", colony.End)
 			} else if start {
-				return errors.New("no room after 'start'")
+				return fmt.Errorf("no room after '##start'")
 			}
 			end = true
 
@@ -107,7 +112,7 @@ func ParseFile(colony *Colony, fileName string) error {
 	}
 
 	if colony.Ants == 0 || colony.Start == "" || colony.End == "" {
-		return errors.New("missing ants, start or end room")
+		return fmt.Errorf("missing ants, start or end room")
 	}
 
 	return nil

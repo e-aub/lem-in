@@ -15,9 +15,9 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	paths := colony.FindPaths()
-	if len(paths) < 1 {
-		log.Fatalln("There is no paths from start to end")
+	paths, err := colony.FindPaths()
+	if err != nil {
+		log.Fatalln(err)
 	}
 	subSets := FilterPaths(paths, colony.Ants)
 	RunAnts(colony, subSets)
