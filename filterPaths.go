@@ -1,5 +1,7 @@
 package main
 
+// FilterPaths selects the best combination of paths that can accommodate the given total number of ants.
+// It returns the largest combination of non-overlapping paths that can fit within the total number of ants.
 func FilterPaths(paths []Path, totalAnts int) []Path {
 	bestCombo := []Path{}
 	remainingAnts := totalAnts
@@ -30,6 +32,8 @@ func FilterPaths(paths []Path, totalAnts int) []Path {
 	return bestCombo
 }
 
+// PathsInterfear checks if adding a new path interferes with already selected paths.
+// It returns true if there are overlapping rooms in the paths, false otherwise.
 func PathsInterfear(paths []Path, path2 Path) bool {
 	occupiedRooms := make(map[string]bool)
 	for _, path1 := range paths {
@@ -46,6 +50,8 @@ func PathsInterfear(paths []Path, path2 Path) bool {
 	return false
 }
 
+// getCapacity returns the capacity of a path, defined as the number of rooms it can accommodate
+// (excluding the start and end rooms).
 func getCapacity(path Path) int {
 	return len(path.Path) - 2
 }

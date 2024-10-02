@@ -112,6 +112,7 @@ func (colony *Colony) FindPaths() ([]Path, error) {
 			paths = append(paths, Path{Path: temp})
 			continue
 		}
+
 		for _, adj := range current.Adjacent {
 			if !PathContainsRoom(path, adj) {
 				newPath := append([]*Room{}, path...)
@@ -124,7 +125,6 @@ func (colony *Colony) FindPaths() ([]Path, error) {
 	if len(paths) == 0 {
 		return nil, errors.New("there is no paths from start to end")
 	}
-	// Sort paths
 
 	sort.Slice(paths, func(i, j int) bool {
 		return len(paths[i].Path) <= len(paths[j].Path)

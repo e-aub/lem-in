@@ -43,7 +43,7 @@ func ParseFile(colony *Colony, fileName string) error {
 	}
 
 	ants, err := strconv.Atoi(lines[0])
-	if err != nil || ants <= 0 {
+	if err != nil || ants <= 0 || ants > 1000_000 {
 		return fmt.Errorf("invalid ants number : %s", lines[0])
 	}
 	colony.Ants = ants
@@ -114,6 +114,5 @@ func ParseFile(colony *Colony, fileName string) error {
 	if colony.Ants == 0 || colony.Start == "" || colony.End == "" {
 		return fmt.Errorf("missing ants, start or end room")
 	}
-
 	return nil
 }

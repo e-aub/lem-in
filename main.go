@@ -19,6 +19,6 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	subSets := FilterPaths(paths, colony.Ants)
-	RunAnts(colony, subSets)
+	filteredPaths := FilterPaths(paths, colony.Ants)
+	Go(colony.Ants, filteredPaths, colony.End)
 }
