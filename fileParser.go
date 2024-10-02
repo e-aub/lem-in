@@ -39,7 +39,7 @@ func ParseFile(colony *Colony, fileName string) error {
 
 	ants, err := strconv.Atoi(lines[0])
 	if err != nil || ants <= 0 {
-		return errors.New("invalid ants number")
+		return fmt.Errorf("invalid ants number : %s", lines[0])
 	}
 	colony.Ants = ants
 
@@ -65,19 +65,19 @@ func ParseFile(colony *Colony, fileName string) error {
 			}
 			end = true
 
-		case line[0] == '#' || line[0] == 'L':
+		case line[0] == '#':
 			continue
 
 		default:
-			if values := strings.Split(line, " "); len(values) == 3 {
+			if values := strings.FieldsFunc(line, func(r rune) bool { return r == ' ' }); len(values) == 3 {
 				name, xStr, yStr := values[0], values[1], values[2]
 				if !IsValidName(name) {
-					continue
+					return fmt.Errorf("invalid room name : %s\nrooms names should never start with the letter L or with # and must have no spaces", name)
 				}
 				x, err := strconv.Atoi(xStr)
 				y, err2 := strconv.Atoi(yStr)
 				if err != nil || err2 != nil || x < 0 || y < 0 {
-					return fmt.Errorf("invalid room coordinates: %s %d %d", name, x, y)
+					return fmt.Errorf("invalid room coordinates: %s %s %s", name, xStr, yStr)
 				}
 
 				coords := [2]int{x, y}
@@ -97,13 +97,17 @@ func ParseFile(colony *Colony, fileName string) error {
 				colony.AddRoom(name, coords)
 
 			} else if values := strings.Split(line, "-"); len(values) == 2 {
+				values[0] = strings.Trim(values[0], " ")
+				values[1] = strings.Trim(values[1], " ")
 				colony.AddTunnels(values[0], values[1])
+			} else {
+				return fmt.Errorf("invalid data format : %s", line)
 			}
 		}
 	}
 
 	if colony.Ants == 0 || colony.Start == "" || colony.End == "" {
-		return errors.New("missing ants or start/end room")
+		return errors.New("missing ants, start or end room")
 	}
 
 	return nil

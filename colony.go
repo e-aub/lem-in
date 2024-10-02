@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"os"
 )
 
 type (
@@ -27,17 +25,15 @@ type (
 	Path struct {
 		Path   []string
 		AntsIn int
-		Index  int
-		Banned bool
 	}
 )
 
 func (colony *Colony) AddRoom(name string, cord [2]int) {
 	if !colony.Contains(name, cord) {
 		colony.Rooms = append(colony.Rooms, &Room{Name: name, Coordinates: cord})
-	} else {
-		fmt.Fprintln(os.Stderr, "existing room")
+		return
 	}
+	log.Fatalf("duh! tryna add an existing room : %s\n", name)
 }
 
 func (colony *Colony) GetRoom(name string) *Room {
@@ -53,9 +49,9 @@ func (colony *Colony) AddTunnels(from, to string) {
 	fromRoom := colony.GetRoom(from)
 	toRoom := colony.GetRoom(to)
 	if fromRoom == nil {
-		log.Fatalf("room %s doesent exist\n", from)
+		log.Fatalf("room : %s doesent exist to link it with : %s\n", from, to)
 	} else if toRoom == nil {
-		log.Fatalf("room %s doesent exist\n", to)
+		log.Fatalf("room : %s doesent exist to link it with : %s\n", to, from)
 	}
 	fromRoom.Adjacent = append(fromRoom.Adjacent, toRoom)
 	toRoom.Adjacent = append(toRoom.Adjacent, fromRoom)

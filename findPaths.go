@@ -5,14 +5,14 @@ import (
 	"sort"
 )
 
-func (colony *Colony) FindPaths() [][]string {
+func (colony *Colony) FindPaths() []Path {
 	start := colony.GetRoom(colony.Start)
 	end := colony.GetRoom(colony.End)
 	if start == nil || end == nil {
 		log.Fatalln("Start or end room not found")
 	}
 
-	paths := [][]string{}
+	paths := []Path{}
 	stack := [][]*Room{{start}}
 
 	for len(stack) > 0 {
@@ -25,7 +25,7 @@ func (colony *Colony) FindPaths() [][]string {
 			for _, room := range path {
 				temp = append(temp, room.Name)
 			}
-			paths = append(paths, temp)
+			paths = append(paths, Path{Path: temp})
 			continue
 		}
 		for _, adj := range current.Adjacent {
@@ -36,10 +36,10 @@ func (colony *Colony) FindPaths() [][]string {
 			}
 		}
 	}
-	//Sort paths
+	// Sort paths
 
 	sort.Slice(paths, func(i, j int) bool {
-		return len(paths[i]) <= len(paths[j])
+		return len(paths[i].Path) <= len(paths[j].Path)
 	})
 
 	return paths

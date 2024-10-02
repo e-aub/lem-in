@@ -1,8 +1,6 @@
 package main
 
 func FilterPaths(paths []Path, totalAnts int) []Path {
-	// fmt.Println(paths)
-
 	bestCombo := []Path{}
 	remainingAnts := totalAnts
 	for i := 0; i < len(paths); i++ {
@@ -25,9 +23,8 @@ func FilterPaths(paths []Path, totalAnts int) []Path {
 				}
 			}
 		}
-		if len(selectedPaths) >= len(bestCombo) {
+		if len(selectedPaths) > len(bestCombo) {
 			bestCombo = selectedPaths
-
 		}
 	}
 	return bestCombo
