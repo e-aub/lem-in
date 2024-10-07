@@ -5,12 +5,15 @@ package main
 func FilterPaths(paths []Path, totalAnts int) []Path {
 	bestCombo := []Path{}
 	remainingAnts := totalAnts
+	bestComboRemaining := 0
 	for i := 0; i < len(paths); i++ {
+		numOfrooms := 0
 		selectedPaths := []Path{}
 		remainingAnts = totalAnts
 		path1 := paths[i]
 		selectedPaths = append(selectedPaths, path1)
 		remainingAnts -= getCapacity(path1)
+		numOfrooms += getCapacity(path1)
 		if remainingAnts > 0 {
 			for j := 0; j < len(paths); j++ {
 				if j != i {
@@ -18,6 +21,8 @@ func FilterPaths(paths []Path, totalAnts int) []Path {
 					if !PathsInterfear(selectedPaths, path2) {
 						selectedPaths = append(selectedPaths, path2)
 						remainingAnts -= getCapacity(path2)
+						numOfrooms += getCapacity(path2)
+
 						if remainingAnts <= 0 {
 							return selectedPaths
 						}
@@ -25,8 +30,13 @@ func FilterPaths(paths []Path, totalAnts int) []Path {
 				}
 			}
 		}
-		if len(selectedPaths) > len(bestCombo) {
-			bestCombo = selectedPaths
+		if len(selectedPaths) >= len(bestCombo) {
+			if len(selectedPaths) == len(bestCombo) && numOfrooms < bestComboRemaining {
+				bestComboRemaining = numOfrooms
+				bestCombo = selectedPaths
+			} else if len(selectedPaths) > len(bestCombo) {
+				bestCombo = selectedPaths
+			}
 		}
 	}
 	return bestCombo
@@ -41,7 +51,6 @@ func PathsInterfear(paths []Path, path2 Path) bool {
 			occupiedRooms[room1] = true
 		}
 	}
-
 	for _, room2 := range path2.Path[1 : len(path2.Path)-1] {
 		if occupiedRooms[room2] {
 			return true

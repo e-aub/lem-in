@@ -35,27 +35,27 @@ func Go(antsNumber int, paths []Path, endRoom string) {
 			i--
 		}
 	}
-	rooms := make(map[string]int)
+	rooms := make(map[string]bool)
 	var result string
 	for len(ants) > 0 {
 		usedTunnels := make(map[Tunnel]bool)
 		for i := 0; i < len(ants); i++ {
 			ant := ants[i]
 			if !usedTunnels[Tunnel{Romms: [2]string{ant.Path[ant.Next-1], ant.Path[ant.Next]}}] {
-				if rooms[ant.Path[ant.Next]] == 0 {
+				if !rooms[ant.Path[ant.Next]] {
 					result += fmt.Sprintf("L%d-%s ", ant.Id, ant.Path[ant.Next])
 					usedTunnels[Tunnel{Romms: [2]string{ant.Path[ant.Next-1], ant.Path[ant.Next]}}] = true
 					if ant.Next < len(ant.Path)-1 {
-						rooms[ant.Path[ant.Next]] = ant.Id
+						rooms[ant.Path[ant.Next]] = true
 					}
 
-					if ant.Next > 1 {
-						rooms[ant.Path[ant.Next-1]] = 0
-					}
+					// if ant.Next > 1 {
+					rooms[ant.Path[ant.Next-1]] = false
+					// }
 
-					if ant.Next < len(ant.Path)-1 {
-						ants[i].Next++
-					}
+					// if ant.Next < len(ant.Path)-1 {
+					ants[i].Next++
+					// }
 				}
 
 				if ant.Path[ant.Next] == endRoom {
