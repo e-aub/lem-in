@@ -91,8 +91,8 @@ func PathContainsRoom(path []*Room, adj *Room) bool {
 // Returns a slice of Path representing all found paths.
 func (colony *Colony) FindPaths() ([]Path, error) {
 	start := colony.GetRoom(colony.Start)
-	end := colony.GetRoom(colony.End)
-	if start == nil || end == nil {
+
+	if start == nil {
 		return nil, errors.New("start or end room not found")
 	}
 
@@ -104,7 +104,7 @@ func (colony *Colony) FindPaths() ([]Path, error) {
 		stack = stack[:len(stack)-1]
 		current := path[len(path)-1]
 
-		if current == end {
+		if current.Name == colony.End {
 			temp := []string{}
 			for _, room := range path {
 				temp = append(temp, room.Name)

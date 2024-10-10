@@ -49,13 +49,9 @@ func Go(antsNumber int, paths []Path, endRoom string) {
 						rooms[ant.Path[ant.Next]] = true
 					}
 
-					// if ant.Next > 1 {
 					rooms[ant.Path[ant.Next-1]] = false
-					// }
 
-					// if ant.Next < len(ant.Path)-1 {
 					ants[i].Next++
-					// }
 				}
 
 				if ant.Path[ant.Next] == endRoom {

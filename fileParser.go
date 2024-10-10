@@ -23,9 +23,8 @@ func IsValidName(name string) bool {
 			}
 		}
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
 // ParseFile reads a file and populates the colony's properties based on its contents.
@@ -81,7 +80,7 @@ func ParseFile(colony *Colony, fileName string) error {
 				}
 				x, err := strconv.Atoi(xStr)
 				y, err2 := strconv.Atoi(yStr)
-				if err != nil || err2 != nil || x < 0 || y < 0 {
+				if err != nil || err2 != nil {
 					return fmt.Errorf("invalid room coordinates: %s %s %s", name, xStr, yStr)
 				}
 
