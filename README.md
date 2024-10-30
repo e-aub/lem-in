@@ -33,3 +33,10 @@ A Go-based simulation of ant colony behavior within a graph of rooms and tunnels
 ---
 
 This project provides a structured approach to simulating an ant colony's behavior within a network of connected rooms, aiming for optimal efficiency in ant traversal.
+
+## How to Run
+Make sure that Go is installed on your machine, compile the program, and run it with a valid colony file, passing its path as the first argument; for more details about file format, check the subject below the title.
+
+## Collaboration
+
+To collaborate on this project, feel free to fork the repository, submit pull requests, or open issues for any bugs, feature suggestions, or improvements. Contributions are welcome.
