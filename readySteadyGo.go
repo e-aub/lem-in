@@ -18,7 +18,7 @@ func Go(antsNumber int, paths []Path, endRoom string) {
 	if len(paths) == 1 {
 		paths[0].AntsIn += antsNumber
 	} else {
-		GroupAnts(&paths, antsNumber)
+		GroupAnts(paths, antsNumber)
 	}
 	ants := make([]Ant, antsNumber)
 	var n int
@@ -67,12 +67,12 @@ func Go(antsNumber int, paths []Path, endRoom string) {
 	fmt.Print(result)
 }
 
-func GroupAnts(paths *[]Path, ants int) {
+func GroupAnts(paths []Path, ants int) {
 	for n := 1; n <= ants; n++ {
 		// Sort paths based on the length of the path and the number of ants already in that path.
-		sort.Slice(*paths, func(i, j int) bool {
-			return (len((*paths)[i].Path)+(*paths)[i].AntsIn <= len((*paths)[j].Path)+(*paths)[j].AntsIn)
+		sort.Slice(paths, func(i, j int) bool {
+			return (len((paths)[i].Path)+(paths)[i].AntsIn <= len((paths)[j].Path)+(paths)[j].AntsIn)
 		})
-		(*paths)[0].AntsIn++
+		(paths)[0].AntsIn++
 	}
 }
